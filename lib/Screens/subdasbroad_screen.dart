@@ -72,7 +72,7 @@ class _SubdasbroadScreenState extends State<SubdasbroadScreen> {
 
     if (!mounted) return;
 
-    Navigator.pop(context);
+    Navigator.pop(context, true);
   }
 
   @override
@@ -100,7 +100,7 @@ class _SubdasbroadScreenState extends State<SubdasbroadScreen> {
             icon: const Icon(Icons.save, color: Colors.white),
             onPressed: () async {
               await _saveTodo();
-             Navigator.pop(context);
+             Navigator.pop(context , true);
               
             },
           ),

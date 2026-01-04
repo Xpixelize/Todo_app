@@ -16,7 +16,6 @@ class _DasbroadScreenState extends State<DasbroadScreen> {
   final DatabaseHelper dbHelper = DatabaseHelper.instance;
   List<Todelist> todoList = [];
   List<int> Items_Delete = [];
-  bool selected = false;
 
   @override
   void initState() {
@@ -38,27 +37,43 @@ class _DasbroadScreenState extends State<DasbroadScreen> {
 
   // deleting multiple items
   Future<void> deleteMultipleItems() async {
-    for (int id in Items_Delete) {
-      await dbHelper.deleteTodo(id);
-    }
 
-    setState(() {
+    for (int id in Items_Delete) {
+      if (Items_Delete.contains(id)){
+      await dbHelper.deleteTodo(id);
+      }
+  }
+   setState(() {
       Items_Delete.clear();
       todoList.clear();
     });
 
     fetchTodos();
+
+  }
+  // add deleting item 
+  void deleteItem(int id){
+    
+    setState(() {
+        if (!Items_Delete.contains(id)){
+    Items_Delete.add(id);
+  
+}  else {
+    Items_Delete.remove(id);
+  }
+    });
   }
 
   /// Navigate and refresh after returning
   Future<void> openTodo({int? id}) async {
-    await Navigator.push(
+    final result = await Navigator.push(
       context,
-      MaterialPageRoute(
-        builder: (_) => SubdasbroadScreen(ktid: id),
-      ),
+      MaterialPageRoute(builder: (_) => SubdasbroadScreen(ktid: id)),
     );
-    fetchTodos();
+
+    if (result == true) {
+      fetchTodos();
+    }
   }
 
   @override
@@ -67,10 +82,7 @@ class _DasbroadScreenState extends State<DasbroadScreen> {
       appBar: AppBar(
         title: const Text(
           'TODOS',
-          style: TextStyle(
-            color: Colors.white,
-            fontWeight: FontWeight.bold,
-          ),
+          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
         ),
         centerTitle: true,
         backgroundColor: AppColours.primary,
@@ -87,7 +99,8 @@ class _DasbroadScreenState extends State<DasbroadScreen> {
                   barrierDismissible: false,
                   builder: (_) => AlertDialog(
                     title: Text(
-                        'Delete ${Items_Delete.length.toString()} Item'),
+                      'Delete ${Items_Delete.length.toString()} Item',
+                    ),
                     content: const Text(
                       "Are you sure you want to delete this task?",
                     ),
@@ -98,8 +111,9 @@ class _DasbroadScreenState extends State<DasbroadScreen> {
                       ),
                       ElevatedButton(
                         onPressed: () async {
-                          Navigator.pop(context);
+                          
                           await deleteMultipleItems();
+                          Navigator.pop(context);
                         },
                         child: const Text("Yes"),
                       ),
@@ -118,9 +132,7 @@ class _DasbroadScreenState extends State<DasbroadScreen> {
       ),
 
       body: todoList.isEmpty
-          ? Center(
-              child: Lottie.asset('assets/animations/notodes.json'),
-            )
+          ? Center(child: Lottie.asset('assets/animations/notodes.json'))
           : ListView.builder(
               padding: const EdgeInsets.all(16),
               itemCount: todoList.length,
@@ -128,7 +140,6 @@ class _DasbroadScreenState extends State<DasbroadScreen> {
                 final todo = todoList[index];
                 return Card(
                   elevation: 4,
-                  borderOnForeground: selected,
                   margin: const EdgeInsets.symmetric(vertical: 8),
                   child: ListTile(
                     leading: Icon(
@@ -142,21 +153,19 @@ class _DasbroadScreenState extends State<DasbroadScreen> {
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
-                    trailing:
-                        const Icon(Icons.arrow_forward_ios, size: 16),
+                    trailing: const Icon(Icons.arrow_forward_ios, size: 16),
                     onTap: () {
                       Items_Delete.isEmpty
                           ? openTodo(id: todo.id)
                           : setState(() {
-                              Items_Delete.contains(todo.id)
-                                  ? Items_Delete.remove(todo.id!)
-                                  : Items_Delete.add(todo.id!);
+                              deleteItem(todo.id!);
                             });
                     },
                     onLongPress: () {
                       setState(() {
-                        Items_Delete.add(todo.id!);
-                      });
+                        deleteItem(todo.id!);
+                        }
+                      );
                     },
                   ),
                 );
