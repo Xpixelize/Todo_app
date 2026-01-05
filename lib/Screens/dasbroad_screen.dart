@@ -37,30 +37,27 @@ class _DasbroadScreenState extends State<DasbroadScreen> {
 
   // deleting multiple items
   Future<void> deleteMultipleItems() async {
-
     for (int id in Items_Delete) {
-      if (Items_Delete.contains(id)){
-      await dbHelper.deleteTodo(id);
+      if (Items_Delete.contains(id)) {
+        await dbHelper.deleteTodo(id);
       }
-  }
-   setState(() {
+    }
+    setState(() {
       Items_Delete.clear();
       todoList.clear();
     });
 
     fetchTodos();
+  }
 
-  }
-  // add deleting item 
-  void deleteItem(int id){
-    
+  // add deleting item
+  void deleteItem(int id) {
     setState(() {
-        if (!Items_Delete.contains(id)){
-    Items_Delete.add(id);
-  
-}  else {
-    Items_Delete.remove(id);
-  }
+      if (!Items_Delete.contains(id)) {
+        Items_Delete.add(id);
+      } else {
+        Items_Delete.remove(id);
+      }
     });
   }
 
@@ -111,7 +108,6 @@ class _DasbroadScreenState extends State<DasbroadScreen> {
                       ),
                       ElevatedButton(
                         onPressed: () async {
-                          
                           await deleteMultipleItems();
                           Navigator.pop(context);
                         },
@@ -122,6 +118,27 @@ class _DasbroadScreenState extends State<DasbroadScreen> {
                 );
               },
             ),
+          IconButton(
+              onPressed: (){
+                setState(() {
+                  if(Items_Delete.length != todoList.length){
+                    Items_Delete.clear();
+                    if(Items_Delete != null){
+                        for(int i = 0 ; i < todoList.length; i++){
+                              final id = todoList[i].id;
+                                   if (id != null) {
+                                         Items_Delete.add(id);
+                        }
+                    }
+                  }
+                  
+                }else{
+                    Items_Delete.clear();
+                  }
+                });
+              },
+              icon: Icon(Icons.select_all_outlined , color: Colors.white,)
+          )
         ],
       ),
 
@@ -133,43 +150,46 @@ class _DasbroadScreenState extends State<DasbroadScreen> {
 
       body: todoList.isEmpty
           ? Center(child: Lottie.asset('assets/animations/notodes.json'))
-          : ListView.builder(
-              padding: const EdgeInsets.all(16),
-              itemCount: todoList.length,
-              itemBuilder: (context, index) {
-                final todo = todoList[index];
-                return Card(
-                  elevation: 4,
-                  margin: const EdgeInsets.symmetric(vertical: 8),
-                  child: ListTile(
-                    leading: Icon(
-                      Items_Delete.contains(todo.id!)
-                          ? Icons.check_circle
-                          : Icons.check_circle_outline_outlined,
-                    ),
-                    title: Text(todo.title),
-                    subtitle: Text(
-                      todo.description,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    trailing: const Icon(Icons.arrow_forward_ios, size: 16),
-                    onTap: () {
-                      Items_Delete.isEmpty
-                          ? openTodo(id: todo.id)
-                          : setState(() {
-                              deleteItem(todo.id!);
-                            });
-                    },
-                    onLongPress: () {
-                      setState(() {
-                        deleteItem(todo.id!);
-                        }
-                      );
-                    },
-                  ),
-                );
-              },
+          : Container(
+              child:
+                ListView.builder(
+                  padding: const EdgeInsets.all(16),
+                  itemCount: todoList.length,
+                  itemBuilder: (context, index) {
+                    final todo = todoList[index];
+                    return Card(
+                      elevation: 4,
+                      margin: const EdgeInsets.symmetric(vertical: 8),
+                      child: ListTile(
+                        leading: Icon(
+                          Items_Delete.contains(todo.id!)
+                              ? Icons.check_circle
+                              : Icons.check_circle_outline_outlined,
+                        ),
+                        title: Text(todo.title),
+                        subtitle: Text(
+                          todo.description,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+                        onTap: () {
+                          Items_Delete.isEmpty
+                              ? openTodo(id: todo.id)
+                              : setState(() {
+                                  deleteItem(todo.id!);
+                                });
+                        },
+                        onLongPress: () {
+                          setState(() {
+                            deleteItem(todo.id!);
+                          });
+                        },
+                      ),
+                    );
+                  },
+                ),
+
             ),
     );
   }
